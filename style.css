@@ -1,0 +1,440 @@
+/* ============================================================
+   COLOR PALETTE — Change these to restyle the whole site!
+   Just swap out the hex color codes (#xxxxxx)
+   Tip: try coolors.co to generate palettes
+============================================================ */
+:root {
+    --color-bg: #0c0c0e;           /* Main background (dark) */
+    --color-surface: #161619;       /* Card/section backgrounds */
+    --color-accent: #7de62d;        /* Bright accent color (lime green) */
+    --color-accent-dim: #38d22d;    /* Slightly muted accent */
+    --color-text: #e8e8e8;          /* Main text color */
+    --color-text-muted: #8a8a95;    /* Lighter/secondary text */
+    --color-border: #2a2a30;        /* Subtle borders */
+}
+
+/* ============================================================
+   BASE STYLES — General page setup
+============================================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'DM Sans', sans-serif;   /* Body font */
+    background: var(--color-bg);
+    color: var(--color-text);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+a {
+    color: var(--color-accent);
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+a:hover {
+    opacity: 0.8;
+}
+
+/* ============================================================
+   BACKGROUND GRAIN — Adds subtle texture to the page
+   Delete this whole block if you want a flat clean background
+============================================================ */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+}
+
+/* ============================================================
+   LAYOUT CONTAINER — Controls the max width of content
+============================================================ */
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+/* ============================================================
+   NAVIGATION BAR — The top bar with your name and links
+============================================================ */
+nav {
+    padding: 1.5rem 0;
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(12, 12, 14, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--color-border);
+}
+nav .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.25rem;
+    color: var(--color-text);
+    letter-spacing: -0.02em;
+}
+/* The accent dot after your name */
+.nav-logo span {
+    color: var(--color-accent);
+}
+.nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+}
+.nav-links a {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+.nav-links a:hover {
+    color: var(--color-accent);
+    opacity: 1;
+}
+
+/* ============================================================
+   HERO SECTION — The big intro at the top
+   This is the first thing visitors see
+============================================================ */
+.hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding-top: 5rem;
+    position: relative;
+}
+.hero-content {
+    max-width: 750px;
+}
+/* Small label above the main heading */
+.hero-tag {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--color-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 1.5rem;
+    display: inline-block;
+}
+/* Main heading — your name or tagline */
+.hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);  /* Responsive sizing */
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    margin-bottom: 1.5rem;
+}
+/* Accent color on part of the heading */
+.hero h1 .accent {
+    color: var(--color-accent);
+}
+/* Subtitle paragraph */
+.hero p {
+    font-size: 1.15rem;
+    color: var(--color-text-muted);
+    max-width: 520px;
+    line-height: 1.7;
+    margin-bottom: 2.5rem;
+}
+
+/* Hero buttons row */
+.hero-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+/* Primary button (filled) */
+.btn-primary {
+    background: var(--color-accent);
+    color: var(--color-bg);
+    padding: 0.85rem 2rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: inline-block;
+}
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(200, 245, 66, 0.2);
+    opacity: 1;
+}
+/* Secondary button (outline) */
+.btn-secondary {
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+    padding: 0.85rem 2rem;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: border-color 0.2s, transform 0.2s;
+    display: inline-block;
+}
+.btn-secondary:hover {
+    border-color: var(--color-accent);
+    transform: translateY(-2px);
+    opacity: 1;
+}
+
+/* Decorative accent line on the right side of hero */
+.hero-deco {
+    position: absolute;
+    right: 5%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 2px;
+    height: 200px;
+    background: linear-gradient(to bottom, transparent, var(--color-accent), transparent);
+    opacity: 0.3;
+}
+
+/* ============================================================
+   SECTION STYLES — Shared styles for all sections below hero
+============================================================ */
+section {
+    padding: 6rem 0;
+}
+.section-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 0.75rem;
+}
+.section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 3rem;
+}
+
+/* ============================================================
+   PROJECT CARDS — Your portfolio pieces
+   Each card shows an image, title, description, and tags
+
+   TO ADD A NEW PROJECT: Copy one of the <div class="project-card">
+   blocks in the HTML and change the content.
+
+   TO CHANGE THE IMAGE: Replace the emoji/placeholder with
+   an <img> tag, e.g.:
+   <img src="images/myproject.jpg" alt="Project name">
+   (put your images in an "images" folder in your project)
+============================================================ */
+.projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+.project-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.3s, border-color 0.3s;
+}
+.project-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-accent);
+}
+/* The image/preview area at the top of each card */
+.project-image {
+    height: 220px;
+    background: var(--color-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    border-bottom: 1px solid var(--color-border);
+    overflow: hidden;
+}
+/* If you use <img> tags inside .project-image, this makes them fill the space */
+.project-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.project-info {
+    padding: 1.5rem;
+}
+.project-info h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.15rem;
+    margin-bottom: 0.5rem;
+}
+.project-info p {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+/* Tags below each project (HTML, CSS, etc.) */
+.project-tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+.project-tags span {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 100px;
+    background: rgba(200, 245, 66, 0.1);
+    color: var(--color-accent);
+    font-weight: 500;
+}
+
+/* ============================================================
+   ABOUT SECTION — A bit about yourself
+============================================================ */
+.about-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: start;
+}
+.about-text p {
+    color: var(--color-text-muted);
+    margin-bottom: 1.25rem;
+    line-height: 1.8;
+}
+/* Skills list in the about section */
+.skills-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+.skill-item {
+    padding: 1rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: border-color 0.2s;
+}
+.skill-item:hover {
+    border-color: var(--color-accent);
+}
+/* Small muted label inside each skill item */
+.skill-item .label {
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    display: block;
+    margin-bottom: 0.25rem;
+    font-weight: 400;
+}
+
+/* ============================================================
+   CONTACT SECTION — How people can reach you
+============================================================ */
+.contact-section {
+    border-top: 1px solid var(--color-border);
+}
+.contact-links {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+.contact-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-text-muted);
+    font-size: 1rem;
+    transition: color 0.2s;
+}
+.contact-link:hover {
+    color: var(--color-accent);
+    opacity: 1;
+}
+/* Small circle icon before each contact link */
+.contact-link::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    display: inline-block;
+}
+
+/* ============================================================
+   FOOTER — Bottom of the page
+============================================================ */
+footer {
+    padding: 2rem 0;
+    border-top: 1px solid var(--color-border);
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+}
+
+/* ============================================================
+   ANIMATIONS — Elements fade in as you scroll down
+   Delete this block if you don't want animations
+============================================================ */
+.fade-in {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.trail-off {
+    overflow: hidden;
+    max-height: 6em;  /* controls how many lines show — adjust this */
+    mask-image: linear-gradient(to bottom, white 40%, transparent);
+    -webkit-mask-image: linear-gradient(to bottom, white 40%, transparent);
+}
+.two-columns {
+    display: flex;
+    gap: 2rem;
+}
+
+@media (max-width: 768px) {
+    .two-columns {
+        flex-direction: column;
+    }
+}
+
+/* ============================================================
+   MOBILE RESPONSIVE — Makes the site look good on phones
+   These styles kick in on screens smaller than 768px
+============================================================ */
+@media (max-width: 768px) {
+    .nav-links {
+        gap: 1.25rem;
+    }
+    .about-content {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    .hero-deco {
+        display: none;
+    }
+    .contact-links {
+        flex-direction: column;
+        gap: 1rem;
+    }
+}

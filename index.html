@@ -1,148 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <!-- ============================================================
+         PAGE TITLE — Shows in the browser tab
+         Change the text between <title> and </title>
+    ============================================================ -->
+    <title>Nate Meyer — Portfolio</title>
+<link rel="icon" type="image/png" href="Logo.png">
+    <!-- ============================================================
+         FONTS — These load from Google Fonts (free)
+         "Syne" is the bold heading font
+         "DM Sans" is the clean body text font
+         To change fonts: browse fonts.google.com, pick ones you like,
+         then replace the font names in the URL and in style.css
+    ============================================================ -->
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
+    <!-- ============================================================
+         STYLESHEET — All the visual styling lives in style.css
+    ============================================================ -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-<div style="padding: 1rem 0; text-align: center;">
-  <canvas id="c" width="500" height="420" style="max-width: 100%; cursor: grab; touch-action: none; border-radius: var(--border-radius-lg); background: var(--color-background-secondary);"></canvas>
-  <div style="display: flex; gap: 12px; justify-content: center; margin-top: 1rem; flex-wrap: wrap;">
-    <button onclick="setShape('icosahedron')">Icosahedron</button>
-    <button onclick="setShape('dodecahedron')">Dodecahedron</button>
-    <button onclick="setShape('octahedron')">Octahedron</button>
-    <button onclick="setShape('cube')">Cube</button>
-  </div>
-  <div style="display: flex; align-items: center; gap: 12px; justify-content: center; margin-top: 12px;">
-    <label style="font-size: 13px; color: var(--color-text-secondary);">Spin speed</label>
-    <input type="range" min="0" max="100" value="30" id="speed" style="width: 160px;">
-  </div>
+    <!-- ============================================================
+         NAVIGATION — Edit your name and the section links here
+    ============================================================ -->
+    <nav>
+        <div class="container">
+            <a href="#" class="nav-logo">Nate Meyer<span>.</span></a>
+            <ul class="nav-links">
+                <!-- These link to the sections below using their id -->
+                <li><a href="#projects">Work</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- ============================================================
+         HERO — Your big intro section
+         Change the tag, heading, and description to match you
+    ============================================================ -->
+    <section class="hero">
+        <div class="container">
+           <div class="hero-content" style="max-width: 100%;">
+    <span class="hero-tag">-Unknown</span>
+    <div style="display: flex; gap: 0; align-items: stretch;">
+        <h1 style="flex: 1; font-size: 12; padding-right: 2rem;">
+            Jack of all trades,<br>
+            master of none...
+        </h1>
+        <h1 style="flex: 1; font-size: 12; border-left: 2px solid var(--color-border); padding-left: 2rem;">
+            <span class="accent">Oftentimes better than a master of one.</span>
+        </h1>
+    </div>
+    <p style="text-align: center; margin-top: 2rem;">
+        Your paragraph text goes here. Center justified just like your mockup.
+    </p>
 </div>
-<script>
-const canvas = document.getElementById('c');
-const ctx = canvas.getContext('2d');
-const speedEl = document.getElementById('speed');
-const W = canvas.width, H = canvas.height;
-const cx = W/2, cy = H/2;
+  </section>
+                <p>
+                    Hi I'm Nate<br><span class="trail-off"> A QA tester, video editor, animator, programmer,
+                    electrical engineer, <br>game tester, CAD designer, IT, woodworker, test engineer, systems engineer.</span></p>
+                    
+               
+                <div class="hero-buttons">
+                    <a href="#projects" class="btn-primary">View my work</a>
+                    <a href="#contact" class="btn-secondary">Get in touch</a>
+                </div>
+            </div>
+        </div>
+        <div class="hero-deco"></div>
+  
 
-const palette = ['#534AB7','#1D9E75','#D85A30','#378ADD','#D4537E','#639922','#BA7517','#E24B4A'];
+    <!-- ============================================================
+         PROJECTS — Your portfolio pieces
+         
+         HOW TO EDIT:
+         - Change the text inside each card
+         - Replace the emoji in .project-image with an <img> tag:
+           <img src="images/screenshot.jpg" alt="My project">
+         - Update the tags to match your tech/tools
+         - Copy a whole <div class="project-card"> block to add more
+    ============================================================ -->
+    <section id="projects">
+        <div class="container">
+            <div class="section-label fade-in">Selected work</div>
+            <h2 class="section-title fade-in">Recent Projects</h2>
+            
+            <div class="projects-grid">
 
-let rotX = 0.3, rotY = 0.5, rotZ = 0;
-let dragging = false, lastX, lastY;
-let autoRotate = true;
-let vertices = [], faces = [];
+                <!-- PROJECT 1 -->
+                <div class="project-card fade-in">
+                    <div class="project-image">
+                        <!-- Replace this with: <img src="images/your-image.jpg" alt="Project name"> -->
+                        🎨
+                    </div>
+                    <div class="project-info">
+                        <h3>Project One</h3>
+                        <p>A brief description of what this project is. What did you make? What was the goal?</p>
+                        <div class="project-tags">
+                            <span>HTML</span>
+                            <span>CSS</span>
+                            <span>Design</span>
+                        </div>
+                    </div>
+                </div>
 
-const phi = (1 + Math.sqrt(5)) / 2;
+                <!-- PROJECT 2 -->
+                <div class="project-card fade-in">
+                    <div class="project-image">
+                        🚀
+                    </div>
+                    <div class="project-info">
+                        <h3>Project Two</h3>
+                        <p>Describe your second project here. Keep it short — one or two sentences works great.</p>
+                        <div class="project-tags">
+                            <span>JavaScript</span>
+                            <span>Three.js</span>
+                        </div>
+                    </div>
+                </div>
 
-const shapes = {
-  icosahedron: () => {
-    const v = [];
-    [[-1,phi,0],[1,phi,0],[-1,-phi,0],[1,-phi,0],
-     [0,-1,phi],[0,1,phi],[0,-1,-phi],[0,1,-phi],
-     [phi,0,-1],[phi,0,1],[-phi,0,-1],[-phi,0,1]].forEach(p => v.push(p));
-    const f = [
-      [0,11,5],[0,5,1],[0,1,7],[0,7,10],[0,10,11],
-      [1,5,9],[5,11,4],[11,10,2],[10,7,6],[7,1,8],
-      [3,9,4],[3,4,2],[3,2,6],[3,6,8],[3,8,9],
-      [4,9,5],[2,4,11],[6,2,10],[8,6,7],[9,8,1]
-    ];
-    return {v, f};
-  },
-  dodecahedron: () => {
-    const v = [];
-    const ip = 1/phi;
-    [[-1,-1,-1],[-1,-1,1],[-1,1,-1],[-1,1,1],
-     [1,-1,-1],[1,-1,1],[1,1,-1],[1,1,1],
-     [0,-ip,-phi],[0,ip,-phi],[0,-ip,phi],[0,ip,phi],
-     [-ip,-phi,0],[ip,-phi,0],[-ip,phi,0],[ip,phi,0],
-     [-phi,0,-ip],[-phi,0,ip],[phi,0,-ip],[phi,0,ip]].forEach(p => v.push(p));
-    const f = [
-      [0,8,4,13,12],[0,12,1,17,16],[0,16,2,9,8],
-      [1,10,5,13,12],[1,12,0,8,10].length?[2,14,3,17,16]:[],
-      [2,16,0,8,9],[2,9,6,15,14],[3,11,7,15,14],
-      [3,14,2,16,17],[3,17,1,10,11],[4,8,0,12,13],
-      [4,13,5,19,18],[4,18,6,9,8],[5,10,1,12,13],
-      [5,13,4,18,19],[5,19,7,11,10],[6,9,2,14,15],
-      [6,15,7,19,18],[7,11,3,14,15],[7,15,6,18,19]
-    ].filter(f => f.length === 5);
-    return {v, f};
-  },
-  octahedron: () => {
-    const v = [[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]];
-    const f = [[0,2,4],[0,4,3],[0,3,5],[0,5,2],[1,4,2],[1,3,4],[1,5,3],[1,2,5]];
-    return {v, f};
-  },
-  cube: () => {
-    const v = [[-1,-1,-1],[1,-1,-1],[1,1,-1],[-1,1,-1],[-1,-1,1],[1,-1,1],[1,1,1],[-1,1,1]];
-    const f = [[0,1,2,3],[4,5,6,7],[0,1,5,4],[2,3,7,6],[0,3,7,4],[1,2,6,5]];
-    return {v, f};
-  }
-};
+                <!-- PROJECT 3 -->
+                <div class="project-card fade-in">
+                    <div class="project-image">
+                        ✨
+                    </div>
+                    <div class="project-info">
+                        <h3>Project Three</h3>
+                        <p>Another project description. Talk about the challenge, the solution, or the result.</p>
+                        <div class="project-tags">
+                            <span>UI/UX</span>
+                            <span>Figma</span>
+                            <span>CSS</span>
+                        </div>
+                    </div>
+                </div>
 
-function setShape(name) {
-  const s = shapes[name]();
-  vertices = s.v.map(v => {
-    const len = Math.sqrt(v[0]*v[0]+v[1]*v[1]+v[2]*v[2]);
-    return [v[0]/len*150, v[1]/len*150, v[2]/len*150];
-  });
-  faces = s.f;
-}
+            </div>
+        </div>
+    </section>
 
-function project(v) {
-  let [x,y,z] = v;
-  let cosA=Math.cos(rotX), sinA=Math.sin(rotX);
-  let y1=y*cosA-z*sinA, z1=y*sinA+z*cosA;
-  y=y1; z=z1;
-  let cosB=Math.cos(rotY), sinB=Math.sin(rotY);
-  let x1=x*cosB+z*sinB; z1=-x*sinB+z*cosB;
-  x=x1; z=z1;
-  const scale = 600/(600+z);
-  return [cx+x*scale, cy+y*scale, z];
-}
+    <!-- ============================================================
+         ABOUT — Tell visitors about yourself
+         Edit the paragraphs and skill items
+    ============================================================ -->
+    <section id="about">
+        <div class="container">
+            <div class="section-label fade-in">About me</div>
+            <h2 class="section-title fade-in">A Little Background</h2>
 
-function draw() {
-  ctx.clearRect(0,0,W,H);
-  const projected = vertices.map(v => project(v));
-  const faceData = faces.map((f, i) => {
-    const pts = f.map(idx => projected[idx]);
-    const avgZ = pts.reduce((s,p) => s+p[2],0)/pts.length;
-    return {pts, avgZ, idx: i};
-  });
-  faceData.sort((a,b) => b.avgZ - a.avgZ);
+            <div class="about-content fade-in">
+                <div class="about-text">
+                    <p>
+                        Write a couple paragraphs about yourself here. Who are you? 
+                        What do you do? What are you passionate about?
+                    </p>
+                    <p>
+                        This is a great place to mention your background, what 
+                        you're currently working on, or what you're looking to do next.
+                    </p>
+                </div>
 
-  faceData.forEach(fd => {
-    const pts = fd.pts;
-    const c = palette[fd.idx % palette.length];
-    const brightness = 0.4 + 0.6 * ((fd.avgZ + 150) / 300);
-    ctx.beginPath();
-    ctx.moveTo(pts[0][0], pts[0][1]);
-    for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i][0], pts[i][1]);
-    ctx.closePath();
-    ctx.fillStyle = c + Math.round(brightness * 200).toString(16).padStart(2,'0');
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,0.25)';
-    ctx.lineWidth = 0.5;
-    ctx.stroke();
-  });
+                <!-- SKILLS — Change these to match your actual skills -->
+                <div class="skills-grid">
+                    <div class="skill-item">
+                        <span class="label">Design</span>
+                        Figma & UI/UX
+                    </div>
+                    <div class="skill-item">
+                        <span class="label">Frontend</span>
+                        HTML & CSS
+                    </div>
+                    <div class="skill-item">
+                        <span class="label">Code</span>
+                        JavaScript
+                    </div>
+                    <div class="skill-item">
+                        <span class="label">Tools</span>
+                        Git & VS Code
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-  projected.forEach(p => {
-    ctx.beginPath();
-    ctx.arc(p[0], p[1], 3, 0, Math.PI*2);
-    ctx.fillStyle = 'var(--color-text-primary)';
-    ctx.fill();
-  });
-}
+    <!-- ============================================================
+         CONTACT — How people can reach you
+         Replace the # in href with your actual links, e.g.:
+         href="mailto:you@email.com"
+         href="https://github.com/nateemeyer-bot"
+         href="https://linkedin.com/in/yourname"
+    ============================================================ -->
+    <section id="contact" class="contact-section">
+        <div class="container">
+            <div class="section-label fade-in">Get in touch</div>
+            <h2 class="section-title fade-in">Let's Connect</h2>
+            <div class="contact-links fade-in">
+                <a href="mailto:your@email.com" class="contact-link">your@email.com</a>
+                <a href="https://github.com/nateemeyer-bot" class="contact-link">GitHub</a>
+                <a href="#" class="contact-link">LinkedIn</a>
+            </div>
+        </div>
+    </section>
 
-function animate() {
-  const spd = speedEl.value / 3000;
-  if(autoRotate && !dragging) {
-    rotY += spd;
-    rotX += spd * 0.3;
-  }
-  draw();
-  requestAnimationFrame(animate);
-}
+    <!-- ============================================================
+         FOOTER — Simple copyright line
+         The year updates automatically via JavaScript
+    ============================================================ -->
+    <footer>
+        <div class="container">
+            <p>&copy; <span id="year"></span> Nate Emeyer. All rights reserved.</p>
+        </div>
+    </footer>
 
-canvas.addEventListener('pointerdown', e => { dragging=true; autoRotate=false; lastX=e.clientX; lastY=e.clientY; canvas.style.cursor='grabbing'; canvas.setPointerCapture(e.pointerId); });
-canvas.addEventListener('pointermove', e => { if(!dragging) return; rotY+=(e.clientX-lastX)*0.01; rotX+=(e.clientY-lastY)*0.01; lastX=e.clientX; lastY=e.clientY; });
-canvas.addEventListener('pointerup', e => { dragging=false; autoRotate=true; canvas.style.cursor='grab'; });
-
-setShape('icosahedron');
-animate();
-</script>
+    <!-- ============================================================
+         JAVASCRIPT — All the behavior lives in script.js
+         This tag goes at the bottom so the HTML loads first
+    ============================================================ -->
+    <script src="script.js"></script>
+,    <script src="firework.js"></script>
+</body>
+</html>
