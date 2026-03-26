@@ -6,8 +6,67 @@
 
 
 // --- AUTO YEAR ---
-// Sets the current year in the footer so you never have to update it
+// Sets the current year in the footer
 document.getElementById('year').textContent = new Date().getFullYear();
+
+// --- TYPEWRITER EFFECT FOR QUOTE ---
+// Types out text character by character, preserving line breaks.
+// Uses data-speed and data-delay attributes.
+
+document.querySelectorAll('.typewriter').forEach(el => {
+    const speed = parseInt(el.dataset.speed) || 50;
+    const delay = parseInt(el.dataset.delay) || 0;
+
+    // Store the original HTML so we can preserve <br> and <span> tags
+    const original = el.innerHTML;
+    el.innerHTML = '';
+    el.style.visibility = 'visible';
+
+    // Extract just the characters (skip HTML tags)
+    const chars = [];
+    let inTag = false;
+    let tagBuffer = '';
+
+    for (let i = 0; i < original.length; i++) {
+        const c = original[i];
+        if (c === '<') {
+            inTag = true;
+            tagBuffer = '<';
+        } else if (c === '>') {
+            inTag = false;
+            tagBuffer += '>';
+            // Push the whole tag as a single "character"
+            chars.push({ type: 'tag', value: tagBuffer });
+            tagBuffer = '';
+        } else if (inTag) {
+            tagBuffer += c;
+        } else {
+            chars.push({ type: 'char', value: c });
+        }
+    }
+
+    setTimeout(() => {
+        let i = 0;
+        let html = '';
+        function type() {
+            if (i < chars.length) {
+                // Tags get inserted instantly, characters get typed
+                if (chars[i].type === 'tag') {
+                    html += chars[i].value;
+                    el.innerHTML = html;
+                    i++;
+                    type(); // immediately do the next one
+                } else {
+                    html += chars[i].value;
+                    el.innerHTML = html;
+                    i++;
+                    setTimeout(type, speed);
+                }
+            }
+        }
+        type();
+    }, delay);
+});
 
 
 // --- FADE-IN ANIMATION ---
@@ -26,8 +85,7 @@ document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 
 
 // --- SMOOTH SCROLLING ---
-// When you click a nav link like href="#projects", instead of
-// jumping instantly, the page scrolls there smoothly.
+
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
@@ -39,10 +97,6 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 });
 
 
-// ============================================================
-// EASTER EGG — Hold "F" to charge, release to launch!
-// The longer you hold, the higher it goes (up to a max).
-// ============================================================
 
 // We wrap everything in an IIFE (Immediately Invoked Function
 // Expression) so that all our variables are private and don't
@@ -50,10 +104,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 (function() {
 
     // --- CANVAS SETUP ---
-    // We create a <canvas> element in JavaScript and layer it
-    // over the entire page. "pointer-events: none" means you
-    // can still click things underneath it — the canvas is
-    // invisible to mouse clicks. z-index: 9999 keeps it on top.
+ 
     const canvas = document.createElement('canvas');
     canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;';
     document.body.appendChild(canvas);
@@ -86,10 +137,9 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 
     // --- COLORS ---
     // Each firework picks a random color from this array.
-    // These are hex color codes — you can swap them for any
-    // colors you like. Google "hex color picker" to find codes.
+    // The hex color codes
     const colors = [
-        '#c8f542',  // lime (matches your accent)
+        '#c8f542',  // lime 
         '#ff6b6b',  // coral red
         '#4ecdc4',  // teal
         '#ffe66d',  // golden yellow
@@ -112,7 +162,6 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     // charging:   true while "F" is held down
     // chargeStart: timestamp (ms) when they started holding
     // launchX/Y:  where the mouse was when they started holding
-    //             (so the firework launches from where you aimed)
     // maxChargeMs: how long (in milliseconds) to reach full charge.
     //              1500ms = 1.5 seconds to fully charge.
     let charge = 0;
@@ -193,13 +242,13 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             const elapsed = performance.now() - chargeStart;
             charge = Math.min(elapsed / maxChargeMs, 1);
 
-            // Draw an arc (partial circle) that fills up as you charge.
+            // Draw an arc (partial circle)
             // A full circle is 2π radians. We draw charge * 2π of it.
             ctx.save();  // save current drawing state
 
             ctx.strokeStyle = colors[0];       // use the accent color
             ctx.lineWidth = 3;
-            ctx.globalAlpha = 0.5 + charge * 0.5;  // gets more visible as you charge
+            ctx.globalAlpha = 0.5 + charge * 0.5;  // gets more visible as the higher the charge
             ctx.shadowBlur = 10 + charge * 10;
             ctx.shadowColor = colors[0];
 

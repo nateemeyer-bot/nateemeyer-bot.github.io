@@ -110,7 +110,7 @@ nav .container {
    This is the first thing visitors see
 ============================================================ */
 .hero {
-    min-height: 100vh;
+    min-height: 10vh;
     display: flex;
     align-items: center;
     padding-top: 5rem;
@@ -403,14 +403,19 @@ footer {
 
 .trail-off {
     overflow: hidden;
-    max-height: 6em;  /* controls how many lines show — adjust this */
-    mask-image: linear-gradient(to bottom, white 40%, transparent);
-    -webkit-mask-image: linear-gradient(to bottom, white 40%, transparent);
+    max-height: 5.5rem;  /* controls how many lines show — adjust this */
+    mask-image: linear-gradient(to bottom, white 100%, transparent);
+    -webkit-mask-image: linear-gradient(to bottom, white 0%, transparent);
 }
 .two-columns {
     display: flex;
     gap: .15rem;
 }
+
+/*.typewriter {
+    visibility: hidden;
+    min-height: 3em;  
+}*/
 
 @media (max-width: 768px) {
     .two-columns {
