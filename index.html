@@ -224,7 +224,21 @@
          JAVASCRIPT — All the behavior lives in script.js
          This tag goes at the bottom so the HTML loads first
     ============================================================ -->
-    <script src="script.js"></script>
-,    <script src="firework.js"></script>
+<!-- Three.js core -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<!-- Three.js extras — ORDER MATTERS -->
+<script src="https://unpkg.com/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://unpkg.com/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+<script src="https://unpkg.com/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+<script src="https://unpkg.com/three@0.128.0/examples/js/postprocessing/Pass.js"></script>
+<script src="https://unpkg.com/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+<script src="https://unpkg.com/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+<script src="https://unpkg.com/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+<script src="https://unpkg.com/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+<script src="https://unpkg.com/three@0.128.0/examples/js/loaders/RGBELoader.js"></script>   
+<script src="background3d.js"></script>
+<script src="Script.js"></script>
+<script src="firework.js"></script>
 </body>
 </html>

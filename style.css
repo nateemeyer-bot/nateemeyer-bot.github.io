@@ -43,6 +43,7 @@ a:hover {
    BACKGROUND GRAIN — Adds subtle texture to the page
    Delete this whole block if you want a flat clean background
 ============================================================ */
+/*
 body::before {
     content: '';
     position: fixed;
@@ -51,7 +52,7 @@ body::before {
     pointer-events: none;
     z-index: 1000;
 }
-
+*/
 /* ============================================================
    LAYOUT CONTAINER — Controls the max width of content
 ============================================================ */
