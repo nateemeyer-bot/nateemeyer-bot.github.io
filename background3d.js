@@ -7,7 +7,9 @@
         1000
     );
     camera.position.z = 4;
-camera.position.y = -0.5;
+    // move the camera slightly as if handheld, to give a more dynamic angle   
+
+//camera.position.y = -0.5;
     const renderer = new THREE.WebGLRenderer({
         alpha: true,
         antialias: true
@@ -30,8 +32,8 @@ let nOriginalMaterial = null;  // store the glowing material
 // Glass material — transparent, refractive, shiny
 const glassMaterial = new THREE.MeshPhysicalMaterial({
     color: 0xffffff,
-    metalness: 0.0,
-    roughness: 0.05,
+    metalness: 0.00,
+    roughness: 0.00,
     transmission: 1.0,      // makes it see-through (1 = fully transparent)
     thickness: 0.5,         // how thick the glass looks (affects refraction)
     ior: 1.5,               // index of refraction (glass is ~1.5)
@@ -222,9 +224,12 @@ if (child.name.toLowerCase().includes('n')) {
     });
 
     // --- ANIMATION LOOP ---
-   // --- ANIMATION LOOP ---
+  
     function animate() {
         requestAnimationFrame(animate);
+    const t = performance.now();
+    camera.position.x = Math.sin(t / 2000) * 0.05 + Math.cos(t / 3500) * 0.02;
+    camera.position.y = Math.cos(t / 1800) * 0.05 + Math.sin(t / 2800) * 0.02-0.45;
 
         if (model) {
             const targetRotX = mouseY * 0.3 + Math.PI / 2;

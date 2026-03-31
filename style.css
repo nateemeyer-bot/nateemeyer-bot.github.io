@@ -106,6 +106,28 @@ nav .container {
     opacity: 1;
 }
 
+@font-face {
+    font-family: 'Ethnocentric';
+    src: url('fonts/Ethnocentric-Regular.otf') format('opentype');
+}
+
+/* =======================================
+    Draw a centerline down the page for alignemt of UI elements
+    Delete this block if you don't want the line
+======================================= 
+body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 50%;
+    width: 1px;
+    height: 100%;
+    background: red;
+    z-index: 99999;
+    pointer-events: none;
+}
+*/
+
 /* ============================================================
    HERO SECTION — The big intro at the top
    This is the first thing visitors see
