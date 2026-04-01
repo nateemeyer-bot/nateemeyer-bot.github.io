@@ -4,36 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- ============================================================
-         PAGE TITLE — Shows in the browser tab
-         Change the text between <title> and </title>
-    ============================================================ -->
     <title>Nate Meyer — Portfolio</title>
-<link rel="icon" type="image/png" href="Logo.png">
-    <!-- ============================================================
-         FONTS — These load from Google Fonts (free)
-         "Syne" is the bold heading font
-         "DM Sans" is the clean body text font
-         To change fonts: browse fonts.google.com, pick ones you like,
-         then replace the font names in the URL and in style.css
-    ============================================================ -->
+    <link rel="icon" type="image/png" href="Logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-
-    <!-- ============================================================
-         STYLESHEET — All the visual styling lives in style.css
-    ============================================================ -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- ============================================================
-         NAVIGATION — Edit your name and the section links here
-    ============================================================ -->
     <nav>
         <div class="container">
             <a href="#" class="nav-logo">Nate Meyer<span>.</span></a>
             <ul class="nav-links">
-                <!-- These link to the sections below using their id -->
                 <li><a href="#projects">Work</a></li>
                 <li><a href="#about">About</a></li>
                 <li><a href="#contact">Contact</a></li>
@@ -41,30 +22,23 @@
         </div>
     </nav>
 
-    <!-- ============================================================
-         HERO — Your big intro section
-         Change the tag, heading, and description to match you
-    ============================================================ -->
 <section class="hero">
     <div class="container">
         <div style="text-align: center; width: 100%;">
-           
-            
              <div style="display: inline-flex; gap: 0; align-items: start; text-align: center; margin-bottom: 1%; margin-top: 15%; box-shadow: 0 0 10px rgba(45, 225, 18, 0.763); padding: 1rem; border-radius: 10px; background-color: rgba(8, 5, 5, 0.8);">
-    <h1 class="typewriter" data-speed="100" data-delay="600" style="font-size: clamp(1.2rem, 2.5vw, 2rem); font-family: 'Ethnocentric'; padding-right: 1rem;">
+    <h1 class="typewriter" data-speed="75" data-delay="600" style="font-size: clamp(1.2rem, 2.5vw, 2rem); font-family: 'Ethnocentric'; padding-right: 1rem;">
         Jack of all trades,<br>master of<br>none...
     </h1>
-    <h1 class="typewriter" data-speed="100" data-delay="5800" style="font-size: clamp(1.2rem, 2.5vw, 2rem); font-family: 'Ethnocentric';  padding-left: 1rem;">
+    <h1 class="typewriter" data-speed="75" data-delay="5000" style="font-size: clamp(1.2rem, 2.5vw, 2rem); font-family: 'Ethnocentric';  padding-left: 1rem;">
         <span class="accent">Oftentimes better<br>than a master of <br>one.</span>
     </h1>
-    
 </div>
- <span class="typewriter" data-speed="150" data-delay="11000" style="display: block; margin-bottom: 35%;">-Unknown</span>
-           <p style="font-size: 1.5rem; margin-bottom: 1rem; max-width: 100%; text-align: center;">
+ <span class="typewriter" data-speed="150" data-delay="10000" style="display: block; margin-bottom: 35%;">-Unknown</span>
+           <p style="font-size: 1.5rem; color: #ffffff; text-shadow: 2px 2px 4px rgb(0, 0, 0); justify-content: center; margin-bottom: 1rem; max-width: 100%; text-align: center;">
                 Hi I'm Nate
             </p>
-       <div class="trail-off" style="font-size: 1.2rem; text-align: center;">
-    this is where Im going to list a bunch of things that Ive done 
+<div class="trail-off" style="font-size: 1.2rem; color:#ffffff; text-shadow: 2px 2px 4px rgb(0, 0, 0); max-width: 75%; text-align: center; margin: 0 auto;">
+    This is where Im going to list a bunch of things that Ive done 
     and more things and even more things and it just keeps going 
     and going and going with all the stuff I know about and even 
     more things like this and that and the other thing and also 
@@ -80,83 +54,61 @@
 </section>
 
     <!-- ============================================================
-         PROJECTS — Your portfolio pieces
-         
+         PROJECTS — Interactive widget showcase
+
          HOW TO EDIT:
-         - Change the text inside each card
-         - Replace the emoji in .project-image with an <img> tag:
-           <img src="images/screenshot.jpg" alt="My project">
-         - Update the tags to match your tech/tools
-         - Copy a whole <div class="project-card"> block to add more
+         - Edit the project data in projects.js
+         - Change preview card placeholders below
+         - Replace emoji thumbs with images in projects.js
     ============================================================ -->
     <section id="projects">
         <div class="container">
             <div class="section-label fade-in">Selected work</div>
-            <h2 class="section-title fade-in">Recent Projects</h2>
-            
-            <div class="projects-grid">
+            <h2 class="section-title fade-in">Projects</h2>
 
-                <!-- PROJECT 1 -->
-                <div class="project-card fade-in">
-                    <div class="project-image">
-                        <!-- Replace this with: <img src="images/your-image.jpg" alt="Project name"> -->
-                        🎨
+            <div class="widgets-row">
+                <!-- WORK WIDGET -->
+                <div class="category-widget" data-category="work" onclick="toggleCategory('work')">
+                    <div class="preview-cards">
+                        <div class="preview-card"><div class="placeholder">Dashboard UI</div></div>
+                        <div class="preview-card"><img src="images/Axle.png" alt="Drawing"></div>
+                        <div class="preview-card"><div class="placeholder">Web App</div></div>
                     </div>
-                    <div class="project-info">
-                        <h3>Project One</h3>
-                        <p>A brief description of what this project is. What did you make? What was the goal?</p>
-                        <div class="project-tags">
-                            <span>HTML</span>
-                            <span>CSS</span>
-                            <span>Design</span>
-                        </div>
+                    <div class="widget-box">
+                        <span class="widget-icon">&#9776;</span>
+                        <div class="widget-label">Work</div>
+                        <div class="widget-count">4 projects</div>
                     </div>
+                    <div class="widget-indicator"></div>
                 </div>
 
-                <!-- PROJECT 2 -->
-                <div class="project-card fade-in">
-                    <div class="project-image">
-                        🚀
+                <!-- PERSONAL WIDGET -->
+                <div class="category-widget" data-category="personal" onclick="toggleCategory('personal')">
+                    <div class="preview-cards">
+                        <div class="preview-card"><div class="placeholder">3D Scene</div></div>
+                        <div class="preview-card"><div class="placeholder">Game</div></div>
+                        <div class="preview-card"><div class="placeholder">Arduino</div></div>
                     </div>
-                    <div class="project-info">
-                        <h3>Project Two</h3>
-                        <p>Describe your second project here. Keep it short — one or two sentences works great.</p>
-                        <div class="project-tags">
-                            <span>JavaScript</span>
-                            <span>Three.js</span>
-                        </div>
+                    <div class="widget-box">
+                        <span class="widget-icon">&#9733;</span>
+                        <div class="widget-label">Personal</div>
+                        <div class="widget-count">3 projects</div>
                     </div>
+                    <div class="widget-indicator"></div>
                 </div>
+            </div>
 
-                <!-- PROJECT 3 -->
-                <div class="project-card fade-in">
-                    <div class="project-image">
-                        ✨
-                    </div>
-                    <div class="project-info">
-                        <h3>Project Three</h3>
-                        <p>Another project description. Talk about the challenge, the solution, or the result.</p>
-                        <div class="project-tags">
-                            <span>UI/UX</span>
-                            <span>Figma</span>
-                            <span>CSS</span>
-                        </div>
-                    </div>
-                </div>
-
+            <div class="tree-area" id="tree-area">
+                <canvas id="tree-canvas"></canvas>
+                <div class="tree-projects" id="tree-projects"></div>
             </div>
         </div>
     </section>
 
-    <!-- ============================================================
-         ABOUT — Tell visitors about yourself
-         Edit the paragraphs and skill items
-    ============================================================ -->
     <section id="about">
         <div class="container">
             <div class="section-label fade-in">About me</div>
             <h2 class="section-title fade-in">A Little Background</h2>
-
             <div class="about-content fade-in">
                 <div class="about-text">
                     <p>
@@ -168,37 +120,16 @@
                         you're currently working on, or what you're looking to do next.
                     </p>
                 </div>
-
-                <!-- SKILLS — Change these to match your actual skills -->
                 <div class="skills-grid">
-                    <div class="skill-item">
-                        <span class="label">Design</span>
-                        Figma & UI/UX
-                    </div>
-                    <div class="skill-item">
-                        <span class="label">Frontend</span>
-                        HTML & CSS
-                    </div>
-                    <div class="skill-item">
-                        <span class="label">Code</span>
-                        JavaScript
-                    </div>
-                    <div class="skill-item">
-                        <span class="label">Tools</span>
-                        Git & VS Code
-                    </div>
+                    <div class="skill-item"><span class="label">Design</span>Figma & UI/UX</div>
+                    <div class="skill-item"><span class="label">Frontend</span>HTML & CSS</div>
+                    <div class="skill-item"><span class="label">Code</span>JavaScript</div>
+                    <div class="skill-item"><span class="label">Tools</span>Git & VS Code</div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ============================================================
-         CONTACT — How people can reach you
-         Replace the # in href with your actual links, e.g.:
-         href="mailto:you@email.com"
-         href="https://github.com/nateemeyer-bot"
-         href="https://linkedin.com/in/yourname"
-    ============================================================ -->
     <section id="contact" class="contact-section">
         <div class="container">
             <div class="section-label fade-in">Get in touch</div>
@@ -211,24 +142,15 @@
         </div>
     </section>
 
-    <!-- ============================================================
-         FOOTER — Simple copyright line
-         The year updates automatically via JavaScript
-    ============================================================ -->
     <footer>
         <div class="container">
             <p>&copy; <span id="year"></span> Nate Emeyer. All rights reserved.</p>
         </div>
     </footer>
 
-    <!-- ============================================================
-         JAVASCRIPT — All the behavior lives in script.js
-         This tag goes at the bottom so the HTML loads first
-    ============================================================ -->
 <!-- Three.js core -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
-<!-- Three.js extras — ORDER MATTERS -->
+<!-- Three.js extras -->
 <script src="https://unpkg.com/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <script src="https://unpkg.com/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
 <script src="https://unpkg.com/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
@@ -240,6 +162,7 @@
 <script src="https://unpkg.com/three@0.128.0/examples/js/loaders/RGBELoader.js"></script>   
 <script src="background3d.js"></script>
 <script src="Script.js"></script>
+<script src="projects.js"></script>
 <script src="firework.js"></script>
 </body>
 </html>

@@ -453,3 +453,272 @@ footer {
         gap: 1rem;
     }
 }
+/* ============================================================
+   PROJECT SHOWCASE — Widget-based display
+   Add this entire block to the bottom of your style.css
+============================================================ */
+
+/* --- WIDGET ROW --- */
+.widgets-row {
+    display: flex;
+    justify-content: center;
+    gap: 4rem;
+    margin-bottom: 2rem;
+}
+
+/* --- INDIVIDUAL WIDGET --- */
+.category-widget {
+    position: relative;
+    width: 24%;
+    cursor: pointer;
+    padding-top: 160px;
+}
+
+.widget-box {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    text-align: center;
+    transition: border-color 0.3s, box-shadow 0.3s, transform 0.2s;
+    position: relative;
+    z-index: 20;
+}
+
+.category-widget:hover .widget-box {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 20px rgba(200, 245, 66, 0.15);
+    transform: translateY(-2px);
+}
+
+.category-widget.active .widget-box {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 25px rgba(200, 245, 66, 0.2);
+}
+
+.widget-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.widget-label {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.widget-count {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    margin-top: 0.25rem;
+}
+
+/* --- PREVIEW CARDS (fan out on hover) --- */
+.preview-cards {
+    position: absolute;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 160px;
+    height: 180px;
+    z-index: 5;
+}
+
+.preview-card {
+    position: absolute;
+    width: 130px;
+    height: 180px;
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+    overflow: hidden;
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+                opacity 0.4s ease,
+                box-shadow 0.4s ease;
+    opacity: 0;
+    transform: translateY(60px) rotate(0deg) scale(0.8);
+    transform-origin: center bottom;
+    background: var(--color-surface);
+    left: 15px;
+}
+
+.preview-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.preview-card .placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+    background: linear-gradient(135deg, var(--color-surface), var(--color-bg));
+}
+
+/* Left card — behind, rotated left */
+.category-widget:hover .preview-card:nth-child(1) {
+    opacity: 1;
+    transform: translateX(-35px) translateY(-30px) rotate(-10deg) scale(0.92);
+    z-index: 1;
+    box-shadow: -4px 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+/* Middle card — on top, centered */
+.category-widget:hover .preview-card:nth-child(2) {
+    opacity: 1;
+    transform: translateX(0) translateY(-45px) rotate(0deg) scale(1);
+    z-index: 3;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+}
+
+/* Right card — behind, rotated right */
+.category-widget:hover .preview-card:nth-child(3) {
+    opacity: 1;
+    transform: translateX(35px) translateY(-30px) rotate(10deg) scale(0.92);
+    z-index: 2;
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+/* --- ACTIVE WIDGET INDICATOR --- 
+.widget-indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    margin: 0.5rem auto 0;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+*/
+.category-widget.active .widget-indicator {
+    opacity: 1;
+}
+
+/* --- TREE CHART AREA --- */
+.tree-area {
+    max-width: auto;
+    margin: 0 auto;
+    position: relative;
+    min-height: 0;
+    overflow: visible;
+    transition: min-height 0.5s ease;
+}
+
+.tree-area.expanded {
+    min-height: 450px;
+}
+
+#tree-canvas {
+    position: absolute;
+    top: -80px;
+    left: 0;
+    width: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.tree-projects {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    padding-top: 120px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 2;
+}
+
+/* --- PROJECT CARDS (hidden until noodle arrives) --- */
+.tree-project {
+    position: relative;
+    width: auto;
+    opacity: 0;
+    transform: translateY(20px) scale(0.85);
+    transition: none;
+}
+
+.tree-project.revealed {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    animation: card-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes card-pop {
+    0% {
+        opacity: 0;
+        transform: translateY(15px) scale(0.8);
+    }
+    50% {
+        opacity: 1;
+        transform: translateY(-5px) scale(1.03);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.project-card-mini {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.3s, border-color 0.3s;
+}
+
+.project-card-mini:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-accent);
+}
+
+.project-thumb {
+    height: 130px;
+    background: linear-gradient(135deg, var(--color-bg), var(--color-surface));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.project-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.project-card-mini .info {
+    padding: 1rem;
+}
+
+.project-card-mini .info h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin-bottom: 0.3rem;
+}
+
+.project-card-mini .info p {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    line-height: 1.5;
+}
+
+.project-tags-mini {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+}
+
+.project-tags-mini span {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 100px;
+    background: rgba(200, 245, 66, 0.1);
+    color: var(--color-accent);
+    font-weight: 500;
+}
