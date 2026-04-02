@@ -453,6 +453,10 @@ footer {
         gap: 1rem;
     }
 }
+canvas[style*="z-index:-1"] {
+    transition: opacity 0.3s ease;
+    
+}
 /* ============================================================
    PROJECT SHOWCASE — Widget-based display
    Add this entire block to the bottom of your style.css
@@ -462,14 +466,14 @@ footer {
 .widgets-row {
     display: flex;
     justify-content: center;
-    gap: 4rem;
-    margin-bottom: 2rem;
+    gap: 8rem;
+    margin-bottom: 1rem;
 }
 
 /* --- INDIVIDUAL WIDGET --- */
 .category-widget {
     position: relative;
-    width: 24%;
+    width: 40%;
     cursor: pointer;
     padding-top: 160px;
 }
@@ -477,7 +481,7 @@ footer {
 .widget-box {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
-    border-radius: 12px;
+    border-radius: 24px;
     padding: 1.5rem 2rem;
     text-align: center;
     transition: border-color 0.3s, box-shadow 0.3s, transform 0.2s;
@@ -517,24 +521,24 @@ footer {
 /* --- PREVIEW CARDS (fan out on hover) --- */
 .preview-cards {
     position: absolute;
-    top: 80px;
+    top: 40px;
     left: 50%;
     transform: translateX(-50%);
-    width: 160px;
-    height: 180px;
+    width: 30%; /* Adjust this based on how wide you want the fan to spread */
+    height: 75%;
     z-index: 5;
 }
 
 .preview-card {
     position: absolute;
-    width: 130px;
-    height: 180px;
+    width: 100%;
+    height: 100%;
     border-radius: 8px;
     border: 1px solid var(--color-border);
     overflow: hidden;
     transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
                 opacity 0.4s ease,
-                box-shadow 0.4s ease;
+                box-shadow 0.8s ease;
     opacity: 0;
     transform: translateY(60px) rotate(0deg) scale(0.8);
     transform-origin: center bottom;
@@ -564,7 +568,7 @@ footer {
     opacity: 1;
     transform: translateX(-35px) translateY(-30px) rotate(-10deg) scale(0.92);
     z-index: 1;
-    box-shadow: -4px 4px 15px rgba(0, 0, 0, 0.4);
+    box-shadow: -4px 4px 15px rgb(0, 0, 0);
 }
 
 /* Middle card — on top, centered */
@@ -572,7 +576,7 @@ footer {
     opacity: 1;
     transform: translateX(0) translateY(-45px) rotate(0deg) scale(1);
     z-index: 3;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 8px 25px rgb(0, 0, 0);
 }
 
 /* Right card — behind, rotated right */
@@ -580,20 +584,11 @@ footer {
     opacity: 1;
     transform: translateX(35px) translateY(-30px) rotate(10deg) scale(0.92);
     z-index: 2;
-    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
+    
+    box-shadow: 4px 4px 15px rgb(0, 0, 0);
 }
 
-/* --- ACTIVE WIDGET INDICATOR --- 
-.widget-indicator {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--color-accent);
-    margin: 0.5rem auto 0;
-    opacity: 0;
-    transition: opacity 0.3s;
-}
-*/
+
 .category-widget.active .widget-indicator {
     opacity: 1;
 }

@@ -19,6 +19,7 @@
     renderer.toneMapping = THREE.ReinhardToneMapping;  // was ACESFilmic
 renderer.toneMappingExposure = 0.5;
     renderer.domElement.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;pointer-events:none;';
+    renderer.domElement.id = 'bg-canvas';
     document.body.appendChild(renderer.domElement);
 
     // --- SHARED VARIABLES ---
@@ -247,6 +248,15 @@ if (child.name.toLowerCase().includes('n')) {
         } else {
             renderer.render(scene, camera);
         }
+        window.addEventListener('scroll', () => {
+    const canvas = document.getElementById('bg-canvas');
+    if (!canvas) return;
+
+    const fadeDistance = 500;
+    const opacity = Math.max(0, 1 - window.scrollY / fadeDistance);
+   // canvas.style.opacity = opacity;
+model.position.y = +window.scrollY * 0.005; // move model down slightly as you scroll
+});
     }
     animate();
 
@@ -258,4 +268,9 @@ if (child.name.toLowerCase().includes('n')) {
         bloomComposer.setSize(window.innerWidth, window.innerHeight);
         finalComposer.setSize(window.innerWidth, window.innerHeight);
     });
+
+// --- SCROLL FADE FOR 3D BACKGROUND ---
+// Fades the logo out as you scroll down, fades back in at the top
+
+
 })();
