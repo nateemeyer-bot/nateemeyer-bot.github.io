@@ -268,7 +268,6 @@ model.position.y = (window.scrollY * 0.0025)-0.45; // move model down slightly a
         renderer.setSize(window.innerWidth, window.innerHeight);
         bloomComposer.setSize(window.innerWidth, window.innerHeight);
         finalComposer.setSize(window.innerWidth, window.innerHeight);
-        camera.position.z = screen.width <= 1000 ? 8 : 4; // adjust model position on resize
     });
 
 // --- SCROLL FADE FOR 3D BACKGROUND ---
