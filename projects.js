@@ -9,31 +9,51 @@
 // ============================================================
 
 // --- PROJECT DATA ---
+// Each project has:
+//   title     — short name (2-4 words)
+//   desc      — one sentence for the card
+//   tags      — 3-5 tech/tool tags
+//   thumb     — emoji or '<img src="images/file.jpg" alt="name">'
+//   detail    — longer description for expanded view
+//   images    — array of image paths for the expanded gallery (optional)
+//   links     — object with urls for live site, github, etc. (optional)
 const projects = {
     work: [
         {
             title: 'Dashboard UI',
             desc: 'Analytics dashboard for monitoring real-time data.',
             tags: ['React', 'D3.js', 'CSS'],
-            thumb: '📊'
+            thumb: '📊',
+            detail: 'Built a real-time analytics dashboard that visualizes live data streams with interactive charts and customizable widgets. Users can drag and rearrange panels, set alert thresholds, and export reports.',
+            images: [],
+            links: { github: '#', live: '#' }
         },
         {
             title: 'API Integration Tool',
             desc: 'REST API testing and documentation platform.',
             tags: ['Node.js', 'Express'],
-            thumb: '🔌'
+            thumb: '🔌',
+            detail: 'A developer tool for testing and documenting REST APIs. Features include saved request collections, environment variables, auto-generated docs, and response validation.',
+            images: [],
+            links: { github: '#' }
         },
         {
             title: 'Client Portal',
             desc: 'Secure file sharing and messaging system.',
             tags: ['HTML', 'CSS', 'Auth'],
-            thumb: '🔐'
+            thumb: '🔐',
+            detail: 'Secure portal for sharing files and communicating with clients. Includes role-based access, encrypted uploads, threaded messaging, and activity logging.',
+            images: [],
+            links: { github: '#', live: '#' }
         },
         {
             title: 'E-Commerce Site',
             desc: 'Full-stack online store with cart and checkout.',
             tags: ['JavaScript', 'Stripe'],
-            thumb: '🛒'
+            thumb: '🛒',
+            detail: 'Complete e-commerce platform with product catalog, shopping cart, Stripe payment integration, order tracking, and an admin dashboard for inventory management.',
+            images: [],
+            links: { github: '#', live: '#' }
         }
     ],
     personal: [
@@ -41,19 +61,28 @@ const projects = {
             title: '3D Portfolio Logo',
             desc: 'Interactive Three.js logo with bloom effects.',
             tags: ['Three.js', 'WebGL', 'Blender'],
-            thumb: '🎨'
+            thumb: '🎨',
+            detail: 'Custom 3D logo modeled in Blender and rendered in the browser with Three.js. Features selective bloom post-processing, HDRI environment mapping, mouse-driven tilt, and a toggle between emissive glow and glass materials.',
+            images: [],
+            links: { github: '#' }
         },
         {
             title: 'Retro Game',
             desc: 'Browser-based arcade game with pixel art.',
             tags: ['Canvas', 'JavaScript'],
-            thumb: '🕹️'
+            thumb: '🕹️',
+            detail: 'A retro-styled arcade game built from scratch using HTML Canvas. Features pixel art sprites, particle effects, high score tracking, and responsive controls for both desktop and mobile.',
+            images: [],
+            links: { github: '#', live: '#' }
         },
         {
             title: 'Arduino Weather Station',
             desc: 'IoT weather monitor with web dashboard.',
             tags: ['Arduino', 'C++', 'HTML'],
-            thumb: '🌡️'
+            thumb: '🌡️',
+            detail: 'Hardware project using an Arduino with temperature, humidity, and pressure sensors. Data is sent to a web server and displayed on a live dashboard with historical graphs.',
+            images: [],
+            links: { github: '#' }
         }
     ]
 };
@@ -105,17 +134,47 @@ function toggleCategory(category) {
     treeProjects.innerHTML = '';
     treeCanvas.width = treeCanvas.width; // clear
 
-    projects[category].forEach(project => {
+    projects[category].forEach((project, index) => {
+        // Build links HTML
+        let linksHtml = '';
+        if (project.links) {
+            const linkEntries = Object.entries(project.links).filter(([k, v]) => v && v !== '#');
+            if (linkEntries.length > 0) {
+                linksHtml = '<div class="detail-links">' +
+                    linkEntries.map(([label, url]) => {
+                        const icon = label === 'github' ? '&#9734;' : '&#10132;';
+                        return `<a href="${url}" target="_blank" class="detail-link" onclick="event.stopPropagation()">${icon} ${label}</a>`;
+                    }).join('') +
+                '</div>';
+            }
+        }
+
+        // Build images HTML
+        let imagesHtml = '';
+        if (project.images && project.images.length > 0) {
+            imagesHtml = '<div class="detail-images">' +
+                project.images.map(src => `<img src="${src}" alt="${project.title}">`).join('') +
+            '</div>';
+        }
+
         const card = document.createElement('div');
         card.className = 'tree-project';
+        card.setAttribute('data-index', index);
         card.innerHTML = `
-            <div class="project-card-mini">
+            <div class="project-card-mini" onclick="expandCard(this)">
                 <div class="project-thumb">${project.thumb}</div>
                 <div class="info">
                     <h3>${project.title}</h3>
                     <p>${project.desc}</p>
                     <div class="project-tags-mini">
                         ${project.tags.map(t => `<span>${t}</span>`).join('')}
+                    </div>
+                </div>
+                <div class="card-detail">
+                    <div class="card-detail-inner">
+                        <p class="detail-desc">${project.detail || project.desc}</p>
+                        ${imagesHtml}
+                        ${linksHtml}
                     </div>
                 </div>
             </div>
@@ -389,3 +448,30 @@ function getPartialBezier(x0, y0, cx1, cy1, cx2, cy2, x1, y1, t) {
 window.addEventListener('resize', () => {
     if (activeCategory && !noodleAnimating) drawConnections();
 });
+
+
+// --- EXPAND CARD ---
+// Toggles a card open/closed. Only one card open at a time.
+function expandCard(cardEl) {
+    const isOpen = cardEl.classList.contains('card-expanded');
+
+    // Close all cards first
+    document.querySelectorAll('.project-card-mini.card-expanded').forEach(c => {
+        c.classList.remove('card-expanded');
+    });
+
+    // If it wasn't already open, open it
+    if (!isOpen) {
+        cardEl.classList.add('card-expanded');
+
+        // Scroll to it smoothly after animation starts
+        setTimeout(() => {
+            cardEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
+    }
+
+    // Redraw noodle connections since card sizes changed
+    setTimeout(() => {
+        if (activeCategory && !noodleAnimating) drawConnections();
+    }, 400);
+}

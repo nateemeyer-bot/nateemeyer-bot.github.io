@@ -9,7 +9,7 @@
     camera.position.z = 4;
     // move the camera slightly as if handheld, to give a more dynamic angle   
 
-//camera.position.y = -0.5;
+camera.position.y = -0.5;
     const renderer = new THREE.WebGLRenderer({
         alpha: true,
         antialias: true
@@ -255,8 +255,9 @@ if (child.name.toLowerCase().includes('n')) {
     const fadeDistance = 500;
     const opacity = Math.max(0, 1 - window.scrollY / fadeDistance);
    // canvas.style.opacity = opacity;
-model.position.y = +window.scrollY * 0.005; // move model down slightly as you scroll
+model.position.y = (window.scrollY * 0.0025)-0.45; // move model down slightly as you scroll
 });
+
     }
     animate();
 
@@ -267,6 +268,7 @@ model.position.y = +window.scrollY * 0.005; // move model down slightly as you s
         renderer.setSize(window.innerWidth, window.innerHeight);
         bloomComposer.setSize(window.innerWidth, window.innerHeight);
         finalComposer.setSize(window.innerWidth, window.innerHeight);
+        camera.position.z = screen.width <= 1000 ? 8 : 4; // adjust model position on resize
     });
 
 // --- SCROLL FADE FOR 3D BACKGROUND ---
