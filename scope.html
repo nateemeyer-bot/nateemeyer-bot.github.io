@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -6,7 +6,7 @@
 <title>INMP441 Scope</title>
 <style>
   :root{
-    --panel:#000000; --panel2:#1c1f25; --line:#003bb1;
+    --panel:#0e1014; --panel2:#1c1f25; --line:#003bb1;
     --ink:#d7dbe0; --dim:#7c828c; --phos:#43e07a; --phos-dim:#1b5e35;
     --amber:#ffb84d; --amber-dim:#5a3d12; --accent:#43e07a;
   }
@@ -29,17 +29,16 @@
   .scope{position:relative;background:var(--panel);border:1px solid var(--line);
     border-radius:8px;margin-bottom:14px;overflow:hidden}
   .scope .db{position:absolute;top:8px;right:12px;font-size:16px;font-weight:600;
-  color:var(--phos);font-variant-numeric:tabular-nums;letter-spacing:.03em}
-.scope .db small{font-size:10px;color:var(--dim);font-weight:400;margin-left:3px;letter-spacing:.1em}
+    color:var(--phos);font-variant-numeric:tabular-nums;letter-spacing:.03em;z-index:2}
+  .scope .db small{font-size:10px;color:var(--dim);font-weight:400;margin-left:3px;letter-spacing:.1em}
   .scope .label{position:absolute;top:8px;left:12px;font-size:10px;letter-spacing:.14em;
-    text-transform:uppercase;color:var(--dim)}
+    text-transform:uppercase;color:var(--dim);z-index:2}
   .scope canvas{display:block;width:100%}
   .ctrls{display:flex;flex-wrap:wrap;gap:18px;align-items:center;padding:10px 4px 16px}
   .ctrl{display:flex;flex-direction:column;gap:5px;min-width:130px}
   .ctrl label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
   .ctrl .val{color:var(--ink)}
   input[type=range]{width:100%;accent-color:var(--phos)}
-  .toggle{display:flex;gap:8px;align-items:center}
   .note{color:var(--dim);font-size:11px;line-height:1.6;border-top:1px solid var(--line);
     padding-top:12px;margin-top:4px}
   .note code{color:var(--ink);background:var(--panel2);padding:1px 5px;border-radius:4px}
@@ -49,48 +48,48 @@
 <div class="wrap">
   <header>
     <h1>INMP441 Scope</h1>
-    <span class="sub">ESP32-C6 · Web Serial</span>
+    <span class="sub">ESP32-C6 &middot; Web Serial</span>
   </header>
 
   <div class="bar">
     <button id="connect" class="primary">Connect</button>
     <button id="freeze">Freeze</button>
-    <button id="trigger" class="on">Trigger: on</button>
     <span class="stat" id="stat">disconnected</span>
   </div>
 
-<div class="scope">
-  <span class="label">Waveform</span>
-  <span class="db" id="db">—<small>dBFS</small></span>
-  <canvas id="wave" height="260"></canvas>
-</div>
+  <div class="scope">
+    <span class="label">Spectrogram &middot; 0&ndash;8 kHz</span>
+    <span class="db" id="db">&mdash;<small>dB SPL</small></span>
+    <canvas id="sg" height="320"></canvas>
+  </div>
 
   <div class="scope">
-    <span class="label">Spectrum · 0–8 kHz</span>
+    <span class="label">Spectrum &middot; 0&ndash;8 kHz</span>
     <canvas id="spec" height="220"></canvas>
   </div>
 
   <div class="ctrls">
     <div class="ctrl">
-      <label>Timebase <span class="val" id="tbVal"></span></label>
-      <input type="range" id="tb" min="4" max="120" value="25" step="1">
-    </div>
-    <div class="ctrl">
       <label>Display gain <span class="val" id="gnVal"></span></label>
       <input type="range" id="gn" min="1" max="64" value="8" step="1">
     </div>
     <div class="ctrl">
-      <label>FFT size <span class="val" id="fsVal"></span></label>
+      <label>Floor <span class="val" id="flVal"></span></label>
+      <input type="range" id="fl" min="-100" max="-30" value="-80" step="1">
+    </div>
+    <div class="ctrl">
+      <label>FFT size (bars) <span class="val" id="fsVal"></span></label>
       <input type="range" id="fs" min="8" max="11" value="10" step="1">
     </div>
   </div>
 
   <p class="note">
     Web Serial needs a Chromium-based browser (Chrome / Edge / Brave / Chromium) and a
-    secure context. The simplest reliable way: drop this file in a folder, run
-    <code>python3 -m http.server</code> there, and open <code>http://localhost:8000/scope.html</code>.
-    Click <b>Connect</b> and pick the ESP32 port. <b>Trigger</b> locks the waveform on a rising
-    zero-crossing so steady tones sit still instead of scrolling.
+    secure context (HTTPS or localhost). Click <b>Connect</b> and pick the ESP32 port.
+    The <b>spectrogram</b> scrolls right-to-left &mdash; newest audio on the right &mdash; with frequency on
+    the vertical axis and energy mapped to color (the legend is dBFS). The readout top-right is an
+    estimated acoustic <b>dB SPL</b>. <b>Floor</b> sets the quietest level the colormap shows: raise
+    it to cut background haze, lower it to reveal faint detail.
   </p>
 </div>
 
@@ -100,8 +99,8 @@ const RING = 32768;               // rolling sample history
 const ring = new Float32Array(RING);
 let head = 0, total = 0;
 
-let frozen = false, triggerOn = true;
-let timebaseMs = 25, dispGain = 8, fftSize = 1024;
+let frozen = false;
+let dispGain = 8, fftSize = 1024;
 let port = null, reader = null, keepReading = false;
 let frameBytes = 0, lastT = performance.now();
 
@@ -110,12 +109,13 @@ const $ = id => document.getElementById(id);
 /* ---------- serial ---------- */
 async function connect(){
   if(port){ await disconnect(); return; }
-  if(!('serial' in navigator)){ setStat('Web Serial not supported — use Chrome/Edge/Brave'); return; }
+  if(!('serial' in navigator)){ setStat('Web Serial not supported - use Chrome/Edge/Brave'); return; }
   try{
     port = await navigator.serial.requestPort();
     await port.open({ baudRate: 921600 });
     $('connect').textContent = 'Disconnect';
     keepReading = true;
+    sgLastTotal = total;          // start the time axis from now
     readLoop();
   }catch(e){ setStat('connect failed: ' + e.message); port = null; }
 }
@@ -135,7 +135,6 @@ async function readLoop(){
     let value;
     try{ const r = await reader.read(); if(r.done) break; value = r.value; }
     catch(e){ break; }
-    // append
     const merged = new Uint8Array(buf.length + value.length);
     merged.set(buf); merged.set(value, buf.length);
     buf = merged;
@@ -149,11 +148,11 @@ async function readLoop(){
 function parseFrames(buf){
   let i = 0;
   while(i + 4 <= buf.length){
-    if(buf[i] !== 0xAB || buf[i+1] !== 0xCD){ i++; continue; }  // resync
+    if(buf[i] !== 0xAB || buf[i+1] !== 0xCD){ i++; continue; }
     const count = buf[i+2] | (buf[i+3] << 8);
-    if(count < 1 || count > 4096){ i++; continue; }             // bad magic, skip
+    if(count < 1 || count > 4096){ i++; continue; }
     const need = 4 + count*2;
-    if(i + need > buf.length) break;                            // wait for rest
+    if(i + need > buf.length) break;
     const dv = new DataView(buf.buffer, buf.byteOffset + i + 4, count*2);
     for(let s = 0; s < count; s++){
       ring[head] = dv.getInt16(s*2, true) / 32768;
@@ -196,29 +195,32 @@ function latest(n){
   return out;
 }
 
-/* ---------- rendering ---------- */
-const wave = $('wave'), wctx = wave.getContext('2d');
+/* ---------- jet colormap ---------- */
+function jet(t){
+  const r = Math.max(0, Math.min(1, Math.min(4*t-1.5, -4*t+4.5)));
+  const g = Math.max(0, Math.min(1, Math.min(4*t-0.5, -4*t+3.5)));
+  const b = Math.max(0, Math.min(1, Math.min(4*t+0.5, -4*t+2.5)));
+  return [r*255|0, g*255|0, b*255|0];
+}
+
+/* ---------- rendering setup ---------- */
+const sgCanvas = $('sg'), vctx = sgCanvas.getContext('2d');
 const spec = $('spec'), sctx = spec.getContext('2d');
 const dbEl = $('db');
-let dbSmooth = -90;
+let dbSmooth = 30;
 
-function updateDb(){
-  const N = 2048;                        // ~128 ms integration window
-  if(total < N){ dbEl.innerHTML = '—<small>dBFS</small>'; return; }
-  const buf = latest(N);
-  let sum = 0;
-  for(let k = 0; k < N; k++) sum += buf[k]*buf[k];
-  const rms = Math.sqrt(sum / N);
-let db = 20 * Math.log10(rms + 1e-9);
-  if(db < -90) db = -90;
+// spectrogram is fixed-size (independent of the bars' FFT slider)
+const SG_FFT = 1024, BINS = SG_FFT/2, HOP = 256, COLS = 512;
+const SPAN = COLS*HOP/SR;                 // seconds shown across the panel (~8.2 s)
+let sgFloor = -80, sgCeil = 0;
+let sgLastTotal = 0;
 
-  // dBFS -> dB SPL
-  const CAPTURE_GAIN = 4;                 // must match the firmware value
-  const spl = db + 120 - 20*Math.log10(CAPTURE_GAIN);
+// offscreen 1:1 buffer that we scroll and blit
+const sgBuf = document.createElement('canvas');
+sgBuf.width = COLS; sgBuf.height = BINS;
+const bctx = sgBuf.getContext('2d');
+(function(){ const c=jet(0); bctx.fillStyle='rgb('+c[0]+','+c[1]+','+c[2]+')'; bctx.fillRect(0,0,COLS,BINS); })();
 
-  dbSmooth = dbSmooth * 0.7 + spl * 0.3; // smooth the SPL value
-  dbEl.innerHTML = dbSmooth.toFixed(1) + '<small>dB SPL</small>';
-}
 function fitCanvas(c){
   const dpr = window.devicePixelRatio || 1;
   const w = c.clientWidth;
@@ -234,47 +236,99 @@ function grid(ctx, w, h, cols, rows){
   ctx.stroke();
 }
 
-function drawWave(){
-  const { w, h } = fitCanvas(wave);
-  wctx.clearRect(0,0,w,h);
-  grid(wctx, w, h, 10, 4);
+/* ---------- spectrogram ---------- */
+function addColumn(){
+  const N = SG_FFT;
+  const buf = latest(N);
+  const re = new Float32Array(N), im = new Float32Array(N);
+  for(let k=0;k<N;k++){ const wnd = 0.5-0.5*Math.cos(2*Math.PI*k/(N-1)); re[k]=buf[k]*wnd; im[k]=0; }
+  fft(re, im);
 
-  const n = Math.max(8, Math.round(timebaseMs/1000 * SR));
-  let buf = latest(Math.min(n + 256, RING));     // a little extra for trigger search
-  let start = buf.length - n;
-
-  if(triggerOn){                                  // rising zero-crossing near the start
-    const search = Math.min(buf.length - n, 256);
-    for(let k=0; k<search; k++){
-      if(buf[k] <= 0 && buf[k+1] > 0){ start = k; break; }
-    }
+  bctx.drawImage(sgBuf, -1, 0);                 // scroll left 1 px
+  const col = bctx.createImageData(1, BINS);
+  for(let b=0;b<BINS;b++){
+    const mag = Math.hypot(re[b], im[b]) / (N/2);
+    let db = 20*Math.log10(mag*dispGain + 1e-9);
+    let t = (db - sgFloor) / (sgCeil - sgFloor);
+    if(t<0)t=0; if(t>1)t=1;
+    const c = jet(t);
+    const o = (BINS-1-b)*4;                      // high freq at top
+    col.data[o]=c[0]; col.data[o+1]=c[1]; col.data[o+2]=c[2]; col.data[o+3]=255;
   }
-
-  const mid = h/2;
-wctx.strokeStyle = '#43e07a'; wctx.lineWidth = 1.4;   // green waveform
-  wctx.beginPath();
-  for(let k=0; k<n; k++){
-    const x = w * k/(n-1);
-    let v = buf[start+k] * dispGain;
-    if(v > 1) v = 1; if(v < -1) v = -1;
-    const y = mid - v*mid*0.92;
-    k ? wctx.lineTo(x,y) : wctx.moveTo(x,y);
-  }
-  wctx.stroke();
+  bctx.putImageData(col, COLS-1, 0);
 }
 
+function pumpSpectrogram(){
+  if(total - sgLastTotal > HOP*COLS) sgLastTotal = total - HOP;   // resync if far behind
+  let guard = 0;
+  while(total - sgLastTotal >= HOP && guard < 12){ sgLastTotal += HOP; addColumn(); guard++; }
+}
+
+function drawSpectrogram(){
+  const sz = fitCanvas(sgCanvas), w = sz.w, h = sz.h;
+  const LM = 34, RM = 46, BM = 16;              // left/right/bottom margins
+  const sw = w - LM - RM, sh = h - BM;
+  vctx.clearRect(0,0,w,h);
+
+  vctx.imageSmoothingEnabled = true;
+  vctx.drawImage(sgBuf, 0,0,COLS,BINS, LM,0, sw,sh);
+
+  vctx.font = '10px ui-monospace,monospace';
+  vctx.textBaseline = 'middle';
+
+  // frequency axis (left)
+  vctx.fillStyle = '#7c828c'; vctx.textAlign = 'right';
+  for(let f=1000; f<=8000; f+=1000){
+    const y = sh*(1 - f/(SR/2));
+    if(y > 6) vctx.fillText((f/1000)+'k', LM-5, y);
+  }
+
+  // time axis (bottom)
+  vctx.textAlign = 'center'; vctx.textBaseline = 'alphabetic';
+  vctx.fillText('now', LM+sw-12, h-4);
+  vctx.fillText('-'+(SPAN/2).toFixed(1)+'s', LM+sw/2, h-4);
+  vctx.fillText('-'+SPAN.toFixed(1)+'s', LM+18, h-4);
+
+  // colorbar legend (right)
+  const lx = LM+sw+12, lw = 12, ly0 = 18, ly1 = sh-6, lh = ly1-ly0;
+  for(let i=0;i<lh;i++){
+    const t = 1 - i/lh;                          // top = ceil, bottom = floor
+    const c = jet(t);
+    vctx.fillStyle = 'rgb('+c[0]+','+c[1]+','+c[2]+')';
+    vctx.fillRect(lx, ly0+i, lw, 1);
+  }
+  vctx.fillStyle = '#7c828c'; vctx.textAlign = 'left'; vctx.textBaseline = 'middle';
+  vctx.fillText(sgCeil+'', lx+lw+3, ly0);
+  vctx.fillText(Math.round((sgCeil+sgFloor)/2)+'', lx+lw+3, (ly0+ly1)/2);
+  vctx.fillText(sgFloor+'', lx+lw+3, ly1);
+}
+
+/* ---------- dB SPL readout ---------- */
+function updateDb(){
+  const N = 2048;
+  if(total < N){ dbEl.innerHTML = '&mdash;<small>dB SPL</small>'; return; }
+  const buf = latest(N);
+  let sum = 0;
+  for(let k=0;k<N;k++) sum += buf[k]*buf[k];
+  const rms = Math.sqrt(sum / N);
+  let db = 20*Math.log10(rms + 1e-9);
+  if(db < -90) db = -90;
+  const CAPTURE_GAIN = 4;                        // must match the firmware value
+  const spl = db + 120 - 20*Math.log10(CAPTURE_GAIN);
+  dbSmooth = dbSmooth*0.7 + spl*0.3;
+  dbEl.innerHTML = dbSmooth.toFixed(1) + '<small>dB SPL</small>';
+}
+
+/* ---------- spectrum bars (bottom) ---------- */
 function drawSpec(){
-  const { w, h } = fitCanvas(spec);
+  const sz = fitCanvas(spec), w = sz.w, h = sz.h;
   sctx.clearRect(0,0,w,h);
   grid(sctx, w, h, 8, 4);
 
   const N = fftSize;
   const buf = latest(N);
   const re = new Float32Array(N), im = new Float32Array(N);
-  for(let k=0;k<N;k++){                            // Hann window
-    const wnd = 0.5 - 0.5*Math.cos(2*Math.PI*k/(N-1));
-    re[k] = buf[k]*wnd; im[k] = 0;
-  }
+  for(let k=0;k<N;k++){ const wnd = 0.5-0.5*Math.cos(2*Math.PI*k/(N-1)); re[k]=buf[k]*wnd; im[k]=0; }
   fft(re, im);
 
   const bins = N/2;
@@ -283,15 +337,13 @@ function drawSpec(){
   for(let b=0;b<bins;b++){
     const mag = Math.hypot(re[b], im[b]) / (N/2);
     let db = 20*Math.log10(mag*dispGain + 1e-9);
-    let norm = (db - floorDb) / (-floorDb);       // 0..1
+    let norm = (db - floorDb) / (-floorDb);
     if(norm < 0) norm = 0; if(norm > 1) norm = 1;
     const x = w * b/bins;
     const bw = Math.max(1, w/bins - 0.5);
-    const bh = norm * h;
-    sctx.fillRect(x, h-bh, bw, bh);
+    sctx.fillRect(x, h-norm*h, bw, norm*h);
   }
-  // axis ticks every 2 kHz
-  sctx.fillStyle = 'var(--dim)'; sctx.font = '10px ui-monospace,monospace';
+  sctx.fillStyle = '#7c828c'; sctx.font = '10px ui-monospace,monospace';
   for(let f=2000; f<8000; f+=2000){
     const x = w * f/(SR/2);
     sctx.fillText((f/1000)+'k', x+3, h-4);
@@ -299,11 +351,11 @@ function drawSpec(){
 }
 
 function loop(){
-if(!frozen && port){ drawWave(); drawSpec(); updateDb(); }
+  if(!frozen && port){ pumpSpectrogram(); drawSpectrogram(); drawSpec(); updateDb(); }
   const now = performance.now();
   if(now - lastT > 500){
     const kbps = (frameBytes*8/1000) / ((now-lastT)/1000);
-    if(port) setStat(`streaming · ${kbps.toFixed(0)} kbps · ${total} samples`);
+    if(port) setStat('streaming - ' + kbps.toFixed(0) + ' kbps - ' + total + ' samples');
     frameBytes = 0; lastT = now;
   }
   requestAnimationFrame(loop);
@@ -312,17 +364,15 @@ if(!frozen && port){ drawWave(); drawSpec(); updateDb(); }
 /* ---------- controls ---------- */
 function setStat(t){ $('stat').innerHTML = t.replace(/(\d[\d.]*\s?(kbps|samples)?)/g,'<b>$1</b>'); }
 function syncLabels(){
-  $('tbVal').textContent = timebaseMs + ' ms';
-  $('gnVal').textContent = '×' + dispGain;
+  $('gnVal').textContent = 'x' + dispGain;
+  $('flVal').textContent = sgFloor + ' dB';
   $('fsVal').textContent = fftSize;
 }
 $('connect').onclick = connect;
 $('freeze').onclick = e => { frozen = !frozen; e.target.classList.toggle('on', frozen);
   e.target.textContent = frozen ? 'Frozen' : 'Freeze'; };
-$('trigger').onclick = e => { triggerOn = !triggerOn; e.target.classList.toggle('on', triggerOn);
-  e.target.textContent = 'Trigger: ' + (triggerOn?'on':'off'); };
-$('tb').oninput = e => { timebaseMs = +e.target.value; syncLabels(); };
 $('gn').oninput = e => { dispGain = +e.target.value; syncLabels(); };
+$('fl').oninput = e => { sgFloor = +e.target.value; syncLabels(); };
 $('fs').oninput = e => { fftSize = 1 << (+e.target.value); syncLabels(); };
 
 syncLabels();
