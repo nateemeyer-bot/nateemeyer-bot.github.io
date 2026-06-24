@@ -6,7 +6,7 @@
 <title>INMP441 Scope</title>
 <style>
   :root{
-    --panel:#9d9d9d; --panel2:#1c1f25; --line:#003bb1;
+    --panel:#000000; --panel2:#1c1f25; --line:#003bb1;
     --ink:#d7dbe0; --dim:#7c828c; --phos:#43e07a; --phos-dim:#1b5e35;
     --amber:#ffb84d; --amber-dim:#5a3d12; --accent:#43e07a;
   }
@@ -209,10 +209,15 @@ function updateDb(){
   let sum = 0;
   for(let k = 0; k < N; k++) sum += buf[k]*buf[k];
   const rms = Math.sqrt(sum / N);
-  let db = 20 * Math.log10(rms + 1e-9);
+let db = 20 * Math.log10(rms + 1e-9);
   if(db < -90) db = -90;
-  dbSmooth = dbSmooth * 0.7 + db * 0.3;  // light smoothing so it doesn't jitter
-  dbEl.innerHTML = dbSmooth.toFixed(1) + '<small>dBFS</small>';
+
+  // dBFS -> dB SPL
+  const CAPTURE_GAIN = 4;                 // must match the firmware value
+  const spl = db + 120 - 20*Math.log10(CAPTURE_GAIN);
+
+  dbSmooth = dbSmooth * 0.7 + spl * 0.3; // smooth the SPL value
+  dbEl.innerHTML = dbSmooth.toFixed(1) + '<small>dB SPL</small>';
 }
 function fitCanvas(c){
   const dpr = window.devicePixelRatio || 1;
