@@ -6,7 +6,7 @@
 <title>INMP441 Scope</title>
 <style>
   :root{
-    --panel:#15171b; --panel2:#1c1f25; --line:#2b2f37;
+    --panel:#9d9d9d; --panel2:#1c1f25; --line:#003bb1;
     --ink:#d7dbe0; --dim:#7c828c; --phos:#43e07a; --phos-dim:#1b5e35;
     --amber:#ffb84d; --amber-dim:#5a3d12; --accent:#43e07a;
   }
@@ -228,7 +228,7 @@ function drawWave(){
   }
 
   const mid = h/2;
-  wctx.strokeStyle = 'var(--phos)'; wctx.lineWidth = 1.4;
+wctx.strokeStyle = '#43e07a'; wctx.lineWidth = 1.4;   // green waveform
   wctx.beginPath();
   for(let k=0; k<n; k++){
     const x = w * k/(n-1);
@@ -255,7 +255,7 @@ function drawSpec(){
   fft(re, im);
 
   const bins = N/2;
-  sctx.fillStyle = 'var(--amber)';
+  sctx.fillStyle = '#43e07a';
   const floorDb = -90;
   for(let b=0;b<bins;b++){
     const mag = Math.hypot(re[b], im[b]) / (N/2);
