@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>INMP441 Scope</title>
+<style>
+  :root{
+    --panel:#15171b; --panel2:#1c1f25; --line:#2b2f37;
+    --ink:#d7dbe0; --dim:#7c828c; --phos:#43e07a; --phos-dim:#1b5e35;
+    --amber:#ffb84d; --amber-dim:#5a3d12; --accent:#43e07a;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:#0c0d10;color:var(--ink);
+    font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:13px}
+  .wrap{max-width:980px;margin:0 auto;padding:16px}
+  header{display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--line);
+    padding-bottom:10px;margin-bottom:14px}
+  header h1{font-size:14px;letter-spacing:.12em;text-transform:uppercase;margin:0;font-weight:600}
+  header .sub{color:var(--dim);font-size:11px;letter-spacing:.08em}
+  .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+  button{font:inherit;color:var(--ink);background:var(--panel2);border:1px solid var(--line);
+    padding:7px 14px;border-radius:6px;cursor:pointer;letter-spacing:.04em}
+  button:hover{border-color:var(--dim)}
+  button.primary{background:var(--phos-dim);border-color:var(--phos);color:#eafff1}
+  button.on{background:var(--amber-dim);border-color:var(--amber);color:#fff3df}
+  .stat{margin-left:auto;color:var(--dim);font-size:11px;letter-spacing:.06em}
+  .stat b{color:var(--phos);font-weight:600}
+  .scope{position:relative;background:var(--panel);border:1px solid var(--line);
+    border-radius:8px;margin-bottom:14px;overflow:hidden}
+  .scope .label{position:absolute;top:8px;left:12px;font-size:10px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--dim)}
+  .scope canvas{display:block;width:100%}
+  .ctrls{display:flex;flex-wrap:wrap;gap:18px;align-items:center;padding:10px 4px 16px}
+  .ctrl{display:flex;flex-direction:column;gap:5px;min-width:130px}
+  .ctrl label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+  .ctrl .val{color:var(--ink)}
+  input[type=range]{width:100%;accent-color:var(--phos)}
+  .toggle{display:flex;gap:8px;align-items:center}
+  .note{color:var(--dim);font-size:11px;line-height:1.6;border-top:1px solid var(--line);
+    padding-top:12px;margin-top:4px}
+  .note code{color:var(--ink);background:var(--panel2);padding:1px 5px;border-radius:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>INMP441 Scope</h1>
+    <span class="sub">ESP32-C6 · Web Serial</span>
+  </header>
+
+  <div class="bar">
+    <button id="connect" class="primary">Connect</button>
+    <button id="freeze">Freeze</button>
+    <button id="trigger" class="on">Trigger: on</button>
+    <span class="stat" id="stat">disconnected</span>
+  </div>
+
+  <div class="scope">
+    <span class="label">Waveform</span>
+    <canvas id="wave" height="260"></canvas>
+  </div>
+
+  <div class="scope">
+    <span class="label">Spectrum · 0–8 kHz</span>
+    <canvas id="spec" height="220"></canvas>
+  </div>
+
+  <div class="ctrls">
+    <div class="ctrl">
+      <label>Timebase <span class="val" id="tbVal"></span></label>
+      <input type="range" id="tb" min="4" max="120" value="25" step="1">
+    </div>
+    <div class="ctrl">
+      <label>Display gain <span class="val" id="gnVal"></span></label>
+      <input type="range" id="gn" min="1" max="64" value="8" step="1">
+    </div>
+    <div class="ctrl">
+      <label>FFT size <span class="val" id="fsVal"></span></label>
+      <input type="range" id="fs" min="8" max="11" value="10" step="1">
+    </div>
+  </div>
+
+  <p class="note">
+    Web Serial needs a Chromium-based browser (Chrome / Edge / Brave / Chromium) and a
+    secure context. The simplest reliable way: drop this file in a folder, run
+    <code>python3 -m http.server</code> there, and open <code>http://localhost:8000/scope.html</code>.
+    Click <b>Connect</b> and pick the ESP32 port. <b>Trigger</b> locks the waveform on a rising
+    zero-crossing so steady tones sit still instead of scrolling.
+  </p>
+</div>
+
+<script>
+const SR = 16000;                 // must match the firmware sample rate
+const RING = 32768;               // rolling sample history
+const ring = new Float32Array(RING);
+let head = 0, total = 0;
+
+let frozen = false, triggerOn = true;
+let timebaseMs = 25, dispGain = 8, fftSize = 1024;
+let port = null, reader = null, keepReading = false;
+let frameBytes = 0, lastT = performance.now();
+
+const $ = id => document.getElementById(id);
+
+/* ---------- serial ---------- */
+async function connect(){
+  if(port){ await disconnect(); return; }
+  if(!('serial' in navigator)){ setStat('Web Serial not supported — use Chrome/Edge/Brave'); return; }
+  try{
+    port = await navigator.serial.requestPort();
+    await port.open({ baudRate: 921600 });
+    $('connect').textContent = 'Disconnect';
+    keepReading = true;
+    readLoop();
+  }catch(e){ setStat('connect failed: ' + e.message); port = null; }
+}
+async function disconnect(){
+  keepReading = false;
+  try{ if(reader){ await reader.cancel(); reader.releaseLock(); } }catch(e){}
+  try{ if(port){ await port.close(); } }catch(e){}
+  port = null; reader = null;
+  $('connect').textContent = 'Connect';
+  setStat('disconnected');
+}
+
+async function readLoop(){
+  reader = port.readable.getReader();
+  let buf = new Uint8Array(0);
+  while(keepReading){
+    let value;
+    try{ const r = await reader.read(); if(r.done) break; value = r.value; }
+    catch(e){ break; }
+    // append
+    const merged = new Uint8Array(buf.length + value.length);
+    merged.set(buf); merged.set(value, buf.length);
+    buf = merged;
+    frameBytes += value.length;
+    buf = parseFrames(buf);
+  }
+  try{ reader.releaseLock(); }catch(e){}
+}
+
+// frame: AB CD count(uint16 LE) then count int16 LE
+function parseFrames(buf){
+  let i = 0;
+  while(i + 4 <= buf.length){
+    if(buf[i] !== 0xAB || buf[i+1] !== 0xCD){ i++; continue; }  // resync
+    const count = buf[i+2] | (buf[i+3] << 8);
+    if(count < 1 || count > 4096){ i++; continue; }             // bad magic, skip
+    const need = 4 + count*2;
+    if(i + need > buf.length) break;                            // wait for rest
+    const dv = new DataView(buf.buffer, buf.byteOffset + i + 4, count*2);
+    for(let s = 0; s < count; s++){
+      ring[head] = dv.getInt16(s*2, true) / 32768;
+      head = (head + 1) % RING; total++;
+    }
+    i += need;
+  }
+  return buf.slice(i);
+}
+
+/* ---------- FFT (iterative radix-2) ---------- */
+function fft(re, im){
+  const n = re.length;
+  for(let i=1, j=0; i<n; i++){
+    let bit = n>>1;
+    for(; j & bit; bit >>= 1) j ^= bit;
+    j ^= bit;
+    if(i < j){ const tr=re[i];re[i]=re[j];re[j]=tr; const ti=im[i];im[i]=im[j];im[j]=ti; }
+  }
+  for(let len=2; len<=n; len<<=1){
+    const ang = -2*Math.PI/len, wr = Math.cos(ang), wi = Math.sin(ang);
+    for(let i=0; i<n; i+=len){
+      let cr=1, ci=0;
+      for(let k=0; k<len/2; k++){
+        const a = i+k, b = i+k+len/2;
+        const vr = re[b]*cr - im[b]*ci, vi = re[b]*ci + im[b]*cr;
+        re[b] = re[a]-vr; im[b] = im[a]-vi;
+        re[a] += vr;      im[a] += vi;
+        const ncr = cr*wr - ci*wi; ci = cr*wi + ci*wr; cr = ncr;
+      }
+    }
+  }
+}
+
+/* ---------- snapshot of latest N samples ---------- */
+function latest(n){
+  const out = new Float32Array(n);
+  let idx = (head - n + RING) % RING;
+  for(let k=0; k<n; k++){ out[k] = ring[idx]; idx = (idx+1) % RING; }
+  return out;
+}
+
+/* ---------- rendering ---------- */
+const wave = $('wave'), wctx = wave.getContext('2d');
+const spec = $('spec'), sctx = spec.getContext('2d');
+
+function fitCanvas(c){
+  const dpr = window.devicePixelRatio || 1;
+  const w = c.clientWidth;
+  if(c.width !== w*dpr){ c.width = w*dpr; const cx = c.getContext('2d'); cx.setTransform(dpr,0,0,dpr,0,0); }
+  return { w, h: c.height };
+}
+
+function grid(ctx, w, h, cols, rows){
+  ctx.strokeStyle = 'rgba(120,130,145,.12)'; ctx.lineWidth = 1;
+  ctx.beginPath();
+  for(let i=1;i<cols;i++){ const x=Math.round(w*i/cols)+.5; ctx.moveTo(x,0); ctx.lineTo(x,h); }
+  for(let i=1;i<rows;i++){ const y=Math.round(h*i/rows)+.5; ctx.moveTo(0,y); ctx.lineTo(w,y); }
+  ctx.stroke();
+}
+
+function drawWave(){
+  const { w, h } = fitCanvas(wave);
+  wctx.clearRect(0,0,w,h);
+  grid(wctx, w, h, 10, 4);
+
+  const n = Math.max(8, Math.round(timebaseMs/1000 * SR));
+  let buf = latest(Math.min(n + 256, RING));     // a little extra for trigger search
+  let start = buf.length - n;
+
+  if(triggerOn){                                  // rising zero-crossing near the start
+    const search = Math.min(buf.length - n, 256);
+    for(let k=0; k<search; k++){
+      if(buf[k] <= 0 && buf[k+1] > 0){ start = k; break; }
+    }
+  }
+
+  const mid = h/2;
+  wctx.strokeStyle = 'var(--phos)'; wctx.lineWidth = 1.4;
+  wctx.beginPath();
+  for(let k=0; k<n; k++){
+    const x = w * k/(n-1);
+    let v = buf[start+k] * dispGain;
+    if(v > 1) v = 1; if(v < -1) v = -1;
+    const y = mid - v*mid*0.92;
+    k ? wctx.lineTo(x,y) : wctx.moveTo(x,y);
+  }
+  wctx.stroke();
+}
+
+function drawSpec(){
+  const { w, h } = fitCanvas(spec);
+  sctx.clearRect(0,0,w,h);
+  grid(sctx, w, h, 8, 4);
+
+  const N = fftSize;
+  const buf = latest(N);
+  const re = new Float32Array(N), im = new Float32Array(N);
+  for(let k=0;k<N;k++){                            // Hann window
+    const wnd = 0.5 - 0.5*Math.cos(2*Math.PI*k/(N-1));
+    re[k] = buf[k]*wnd; im[k] = 0;
+  }
+  fft(re, im);
+
+  const bins = N/2;
+  sctx.fillStyle = 'var(--amber)';
+  const floorDb = -90;
+  for(let b=0;b<bins;b++){
+    const mag = Math.hypot(re[b], im[b]) / (N/2);
+    let db = 20*Math.log10(mag*dispGain + 1e-9);
+    let norm = (db - floorDb) / (-floorDb);       // 0..1
+    if(norm < 0) norm = 0; if(norm > 1) norm = 1;
+    const x = w * b/bins;
+    const bw = Math.max(1, w/bins - 0.5);
+    const bh = norm * h;
+    sctx.fillRect(x, h-bh, bw, bh);
+  }
+  // axis ticks every 2 kHz
+  sctx.fillStyle = 'var(--dim)'; sctx.font = '10px ui-monospace,monospace';
+  for(let f=2000; f<8000; f+=2000){
+    const x = w * f/(SR/2);
+    sctx.fillText((f/1000)+'k', x+3, h-4);
+  }
+}
+
+function loop(){
+  if(!frozen && port){ drawWave(); drawSpec(); }
+  const now = performance.now();
+  if(now - lastT > 500){
+    const kbps = (frameBytes*8/1000) / ((now-lastT)/1000);
+    if(port) setStat(`streaming · ${kbps.toFixed(0)} kbps · ${total} samples`);
+    frameBytes = 0; lastT = now;
+  }
+  requestAnimationFrame(loop);
+}
+
+/* ---------- controls ---------- */
+function setStat(t){ $('stat').innerHTML = t.replace(/(\d[\d.]*\s?(kbps|samples)?)/g,'<b>$1</b>'); }
+function syncLabels(){
+  $('tbVal').textContent = timebaseMs + ' ms';
+  $('gnVal').textContent = '×' + dispGain;
+  $('fsVal').textContent = fftSize;
+}
+$('connect').onclick = connect;
+$('freeze').onclick = e => { frozen = !frozen; e.target.classList.toggle('on', frozen);
+  e.target.textContent = frozen ? 'Frozen' : 'Freeze'; };
+$('trigger').onclick = e => { triggerOn = !triggerOn; e.target.classList.toggle('on', triggerOn);
+  e.target.textContent = 'Trigger: ' + (triggerOn?'on':'off'); };
+$('tb').oninput = e => { timebaseMs = +e.target.value; syncLabels(); };
+$('gn').oninput = e => { dispGain = +e.target.value; syncLabels(); };
+$('fs').oninput = e => { fftSize = 1 << (+e.target.value); syncLabels(); };
+
+syncLabels();
+setStat('disconnected');
+requestAnimationFrame(loop);
+window.addEventListener('beforeunload', () => { if(port) disconnect(); });
+</script>
+</body>
+</html>
