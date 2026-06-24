@@ -28,6 +28,9 @@
   .stat b{color:var(--phos);font-weight:600}
   .scope{position:relative;background:var(--panel);border:1px solid var(--line);
     border-radius:8px;margin-bottom:14px;overflow:hidden}
+  .scope .db{position:absolute;top:8px;right:12px;font-size:16px;font-weight:600;
+  color:var(--phos);font-variant-numeric:tabular-nums;letter-spacing:.03em}
+.scope .db small{font-size:10px;color:var(--dim);font-weight:400;margin-left:3px;letter-spacing:.1em}
   .scope .label{position:absolute;top:8px;left:12px;font-size:10px;letter-spacing:.14em;
     text-transform:uppercase;color:var(--dim)}
   .scope canvas{display:block;width:100%}
@@ -56,10 +59,11 @@
     <span class="stat" id="stat">disconnected</span>
   </div>
 
-  <div class="scope">
-    <span class="label">Waveform</span>
-    <canvas id="wave" height="260"></canvas>
-  </div>
+<div class="scope">
+  <span class="label">Waveform</span>
+  <span class="db" id="db">—<small>dBFS</small></span>
+  <canvas id="wave" height="260"></canvas>
+</div>
 
   <div class="scope">
     <span class="label">Spectrum · 0–8 kHz</span>
@@ -195,7 +199,21 @@ function latest(n){
 /* ---------- rendering ---------- */
 const wave = $('wave'), wctx = wave.getContext('2d');
 const spec = $('spec'), sctx = spec.getContext('2d');
+const dbEl = $('db');
+let dbSmooth = -90;
 
+function updateDb(){
+  const N = 2048;                        // ~128 ms integration window
+  if(total < N){ dbEl.innerHTML = '—<small>dBFS</small>'; return; }
+  const buf = latest(N);
+  let sum = 0;
+  for(let k = 0; k < N; k++) sum += buf[k]*buf[k];
+  const rms = Math.sqrt(sum / N);
+  let db = 20 * Math.log10(rms + 1e-9);
+  if(db < -90) db = -90;
+  dbSmooth = dbSmooth * 0.7 + db * 0.3;  // light smoothing so it doesn't jitter
+  dbEl.innerHTML = dbSmooth.toFixed(1) + '<small>dBFS</small>';
+}
 function fitCanvas(c){
   const dpr = window.devicePixelRatio || 1;
   const w = c.clientWidth;
@@ -276,7 +294,7 @@ function drawSpec(){
 }
 
 function loop(){
-  if(!frozen && port){ drawWave(); drawSpec(); }
+if(!frozen && port){ drawWave(); drawSpec(); updateDb(); }
   const now = performance.now();
   if(now - lastT > 500){
     const kbps = (frameBytes*8/1000) / ((now-lastT)/1000);
